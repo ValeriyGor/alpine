@@ -1,6 +1,5 @@
 const swiperMarquee = new Swiper(".marquee", {
     loop: true,
-    loopAdditionalSlides: 10,
     slidesPerView: 'auto',
     allowTouchMove: false,
     speed: 2000,
@@ -12,7 +11,6 @@ const swiperMarquee = new Swiper(".marquee", {
     breakpoints: {
         0: {
             spaceBetween: 25,
-            loopAdditionalSlides: 10,
         },
 
         768: {
@@ -22,7 +20,6 @@ const swiperMarquee = new Swiper(".marquee", {
                 disableOnInteraction: false,
             },
             loop: true,
-            loopAdditionalSlides: 10,
             slidesPerView: 'auto',
             spaceBetween: 40,
         }
