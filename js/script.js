@@ -96,13 +96,13 @@
     }
 
     function initAll() {
-        // const isDesktop = matchMedia(DESKTOP_QUERY).matches;
+        const isDesktop = window.innerWidth >= 768;
         const sections = document.querySelectorAll('[data-hscroll]');
-        // if (!isDesktop) {
-        //     sections.forEach(killSection);
-        //     ScrollTrigger.refresh();
-        //     return;
-        // }
+        if (!isDesktop) {
+            sections.forEach(killSection);
+            ScrollTrigger.refresh();
+            return;
+        }
         sections.forEach(setupSection);
         ScrollTrigger.refresh();
     }
@@ -118,21 +118,30 @@
 
 const swiper = new Swiper(".marquee", {
     loop: true,
+    loopAdditionalSlides: 10,
     slidesPerView: 'auto',
     allowTouchMove: false,
-    speed: 4000,
+    speed: 2000,
     autoplay: {
         delay: 0,
         disableOnInteraction: false,
         pauseOnMouseEnter: false
     },
-    loopAdditionalSlides: 5,
     breakpoints: {
         0: {
             spaceBetween: 25,
+            loopAdditionalSlides: 10,
         },
 
         768: {
+            allowTouchMove: false,
+            autoplay: {
+                delay: 0,
+                disableOnInteraction: false,
+            },
+            loop: true,
+            loopAdditionalSlides: 10,
+            slidesPerView: 'auto',
             spaceBetween: 40,
         }
     }
@@ -160,19 +169,24 @@ const swiper2 = new Swiper(".reviews__slider", {
             allowTouchMove: true,     // разрешаем свайп
             autoplay: false,          // отключаем автоплей
             loop: false,              // можно отключить loop чтобы не путал точки
-            slidesPerView: 'auto',      // по вкусу
+            slidesPerView: 1,      // по вкусу
             spaceBetween: 0,
             speed: 500,
         },
 
         // Планшет и выше
         768: {
+            slidesPerView: 2,
+        },
+
+        1024: {
             allowTouchMove: false,
             autoplay: {
                 delay: 0,
                 disableOnInteraction: false,
             },
             loop: true,
+            loopAdditionalSlides: 10,
             slidesPerView: 'auto',
             spaceBetween: 40,
         }

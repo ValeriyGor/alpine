@@ -202,6 +202,11 @@ header {
     padding-right: 12px;
 }
 
+.container-max {
+    width: 1280px;
+    max-width: 100%;
+}
+
 .container-fluid {
     max-width: 100%;
 }
@@ -215,7 +220,7 @@ header {
 
 .partners-logo {
     background-color: #A27418;
-    padding: 50px 0;
+    padding: 25px 0;
 }
 
 .partners-logo .swiper-slide {
@@ -236,8 +241,9 @@ header {
 }
 
 .team p {
-    max-width: 565px;
-    font-size: 18px;
+    width: 700px;
+    max-width: 100%;
+    font-size: 22px;
     line-height: 1.4;
 }
 
@@ -288,6 +294,11 @@ header {
 
 .services {
     padding: 90px 0;
+    overflow: hidden;
+}
+
+.services .container {
+    position: relative;
 }
 
 .cases__slider {
@@ -323,9 +334,13 @@ header {
     overflow: hidden;
 }
 
+.hscroll.without-hidden {
+    overflow: visible;
+}
+
 .services__slider-item {
-    min-width: 289px;
-    flex: 0 0 289px;
+    min-width: 390px;
+    flex: 0 0 390px;
 }
 
 .services__slider p {
@@ -551,6 +566,10 @@ footer .social {
     display: none;
 }
 
+.reviews__pagination {
+    display: none;
+}
+
 /* ====== БАЗА ====== */
 :root {
     --cf-bg: #F9F7F1;          /* светлый фон правой части */
@@ -710,6 +729,44 @@ footer .social {
     .cf-modal__wrap { transition: none !important; }
 }
 
+
+@media (min-width: 1300px) {
+    .services {
+        position: relative;
+    }
+
+    .services:before {
+        content: "";
+        display: block;
+        height: 100%;
+        width: calc((100% - 1280px)/2);
+        background: #ffffff;
+        background: linear-gradient(90deg,rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 9;
+    }
+
+    .services:after {
+        content: "";
+        display: block;
+        height: 100%;
+        width: calc((100% - 1280px)/2);
+        background: #ffffff;
+        background: linear-gradient(-90deg,rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 9;
+    }
+}
+
+@media (min-width: 1023px) {
+    .reviews__slider .swiper-wrapper {
+        transition-timing-function: linear !important;
+    }
+}
 
 @media (max-width: 1024px) {
     .container {
