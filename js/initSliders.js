@@ -65,7 +65,6 @@ const swiperReviews = new Swiper(".reviews__slider", {
                 disableOnInteraction: false,
             },
             loop: true,
-            loopAdditionalSlides: 10,
             slidesPerView: 'auto',
             spaceBetween: 40,
         }
