@@ -28,10 +28,6 @@ const swiperMarquee = new Swiper(".marquee", {
 
 const swiperReviews = new Swiper(".reviews__slider", {
     loop: true,
-    slidesPerView: 'auto',
-    spaceBetween: 40,
-    allowTouchMove: false,
-    speed: 4000,
     autoplay: {
         delay: 0,
         disableOnInteraction: false,
@@ -46,27 +42,35 @@ const swiperReviews = new Swiper(".reviews__slider", {
         // Мобильные
         0: {
             allowTouchMove: true,     // разрешаем свайп
-            autoplay: false,          // отключаем автоплей
-            loop: false,              // можно отключить loop чтобы не путал точки
-            slidesPerView: 1,      // по вкусу
-            spaceBetween: 0,
+            autoplay: false,
+            slidesPerView: 'auto',
+            centeredSlides: true,
+            centeredSlidesBounds: true, // чтобы не “липло” к краям
+            slideToClickedSlide: true,
             speed: 500,
+            loop: false,
         },
 
         // Планшет и выше
-        768: {
+        640: {
             slidesPerView: 2,
+            autoplay: false,
         },
 
         1024: {
+            loop: true,
+            slidesPerView: 'auto',
             allowTouchMove: false,
+            centeredSlides: false,
+            centeredSlidesBounds: false, // чтобы не “липло” к краям
+            slideToClickedSlide: false,
+            speed: 4000,
             autoplay: {
                 delay: 0,
                 disableOnInteraction: false,
             },
-            loop: true,
-            slidesPerView: 'auto',
-            spaceBetween: 40,
+
+
         }
     }
 });
