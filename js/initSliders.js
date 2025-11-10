@@ -76,215 +76,135 @@ const swiperReviews = new Swiper(".reviews__slider", {
 });
 
 (function () {
-    // ==== настройки
-    const MOBILE_BP = 1024; // <768 → мобайл
-
     // ==== утилиты
     const qs  = (s, r = document) => r.querySelector(s);
     const qsa = (s, r = document) => Array.from(r.querySelectorAll(s));
-    const debounce = (fn, ms = 200) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms); }; };
+    const debounce = (fn, ms = 200) => { let t; return (...a)=>{ clearTimeout(t); t = setTimeout(()=>fn(...a), ms); }; };
 
-    // ==== состояние
-    let currentMode = null; // 'desktop' | 'mobile'
-
-    // ==== GSAP
-    const instances = new Map(); // section -> [ScrollTrigger]
+    // ==== GSAP guard
     const hasGSAP = !!(window.gsap && window.ScrollTrigger);
+    if (!hasGSAP) {
+    console.warn('[hscroll] GSAP/ScrollTrigger не найдены');
+    return;
+}
+    gsap.registerPlugin(ScrollTrigger);
+
+    // храним созданные триггеры на секцию
+    const instances = new Map(); // section -> ScrollTrigger[]
 
     const killSection = (section) => {
-        const list = instances.get(section);
-        if (list) {
-            list.forEach(st => st.kill());
-            instances.delete(section);
-        }
-        const track = section.querySelector('.hscroll__track');
-        if (track && hasGSAP) gsap.set(track, { clearProps: 'transform' });
-    };
+    const list = instances.get(section);
+    if (list) {
+    list.forEach(st => { try { st.kill(); } catch(_) {} });
+    instances.delete(section);
+}
+    const track = qs('.hscroll__track', section);
+    if (track) gsap.set(track, { clearProps: 'transform' });
+};
 
     function setupSection(section) {
-        if (!hasGSAP) return;
-        const track = section.querySelector('.hscroll__track');
-        if (!track) return;
+    const track = qs('.hscroll__track', section);
+    if (!track) return;
 
-        // убьём предыдущую инициализацию этой секции (при refresh/resize)
-        killSection(section);
+    // убьём предыдущие инстансы перед пересозданием
+    killSection(section);
 
-        const headerOffset = parseInt(section.dataset.hscrollOffset || '0', 10);
-        const start = headerOffset ? `top top+=${headerOffset}` : 'top top';
+    const headerOffset = parseInt(section.dataset.hscrollOffset || '0', 10);
+    const start = headerOffset ? `top top+=${headerOffset}` : 'top top';
 
-        const getGap = () => {
-            const cs = getComputedStyle(track);
-            return parseFloat(cs.columnGap || cs.gap || '0') || 0;
-        };
-        const calcDistance = () => Math.max(0, track.scrollWidth - section.clientWidth);
+    const getGap = () => {
+    const cs = getComputedStyle(track);
+    return parseFloat(cs.columnGap || cs.gap || '0') || 0;
+};
 
-        // если нет горизонта — ничего не делаем
-        if (calcDistance() <= 0) return;
+    const calcDistance = () => Math.max(0, track.scrollWidth - section.clientWidth);
 
-        const stList = [];
+    // если горизонтального прогона нет — инициализацию не делаем
+    if (calcDistance() <= 0) return;
 
-        // основной tween: вертикальный скролл → transform: translateX
-        const tween = gsap.to(track, {
-            x: () => -calcDistance(),
-            ease: 'none',
-            overwrite: true,
-            scrollTrigger: {
-                trigger: section,
-                start,
-                end: () => `+=${calcDistance()}`,
-                pin: true,
-                scrub: 0.6,
-                anticipatePin: 0.5,
-                invalidateOnRefresh: true
-            }
-        });
-        stList.push(tween.scrollTrigger);
+    const created = [];
 
-        // опциональный SNAP к карточкам
-        if ('hscrollSnap' in section.dataset) {
-            const items = track.querySelectorAll('.services__slider-item, [data-hslide]');
-            const snapTrigger = ScrollTrigger.create({
-                trigger: section,
-                start,
-                end: () => `+=${calcDistance()}`,
-                scrub: true,
-                snap: {
-                    snapTo: () => {
-                        const gap = getGap();
-                        const widths = Array.from(items).map(el => el.getBoundingClientRect().width);
-                        const totalTrack = widths.reduce((a, b) => a + b, 0) + gap * Math.max(0, items.length - 1);
-                        const maxShift = Math.max(1, totalTrack - section.clientWidth);
-                        let acc = 0;
-                        const positions = widths.map(w => {
-                            const pos = Math.min(1, Math.max(0, acc / maxShift));
-                            acc += w + gap;
-                            return pos;
-                        });
-                        if (positions[positions.length - 1] !== 1) positions.push(1);
-                        return positions;
-                    },
-                    duration: { min: 0.25, max: 0.9 },
-                    ease: 'power3.out',
-                    delay: 0.05,
-                    directional: true,
-                    inertia: false
-                }
-            });
-            stList.push(snapTrigger);
-        }
+    // основной горизонтальный прогон: вертикальный скролл → translateX
+    const tween = gsap.to(track, {
+    x: () => -calcDistance(),
+    ease: 'none',
+    overwrite: true,
+    scrollTrigger: {
+    trigger: section,
+    start,
+    end: () => `+=${calcDistance()}`,   // длина «дорожки» = ширина прогона
+    pin: true,
+    scrub: 0.6,
+    anticipatePin: 0.5,
+    invalidateOnRefresh: true
+}
+});
+    created.push(tween.scrollTrigger);
 
-        // картинки → refresh
-        track.querySelectorAll('img').forEach(img => {
-            if (!img.complete) img.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
-        });
+    // опциональный SNAP к карточкам (включается data-hscroll-snap)
+    if ('hscrollSnap' in section.dataset) {
+    const items = track.querySelectorAll('.services__slider-item, [data-hslide]');
+    const snapTrigger = ScrollTrigger.create({
+    trigger: section,
+    start,
+    end: () => `+=${calcDistance()}`,
+    scrub: true,
+    snap: {
+    snapTo: () => {
+    const gap = getGap();
+    const widths = Array.from(items).map(el => el.getBoundingClientRect().width);
+    const totalTrack = widths.reduce((a, b) => a + b, 0) + gap * Math.max(0, items.length - 1);
+    const maxShift = Math.max(1, totalTrack - section.clientWidth);
+    let acc = 0;
+    const positions = widths.map(w => {
+    const pos = Math.min(1, Math.max(0, acc / maxShift));
+    acc += w + gap;
+    return pos;
+});
+    // гарантируем, что финальная позиция = 1
+    if (positions[positions.length - 1] !== 1) positions.push(1);
+    return positions;
+},
+    duration: { min: 0.25, max: 0.9 },
+    ease: 'power3.out',
+    delay: 0.05,
+    directional: true,
+    inertia: false
+}
+});
+    created.push(snapTrigger);
+}
 
-        instances.set(section, stList);
-    }
+    // изображения могут менять ширину дорожки — обновляемся по их загрузке
+    qsa('img', track).forEach(img => {
+    if (!img.complete) img.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+});
 
-    const initDesktop = () => {
-        if (!hasGSAP) {
-            console.warn('[hscroll] GSAP/ScrollTrigger не найдены – desktop режим пропущен');
-            return;
-        }
-        gsap.registerPlugin(ScrollTrigger);
-        const sections = qsa('[data-hscroll]');
-        sections.forEach((s) => {
-            // на всякий случай сносим мобильный свайпер, если был
-            destroySwiperForSection(s);
-            setupSection(s);
-        });
-        ScrollTrigger.refresh();
-    };
+    instances.set(section, created);
+}
 
-    const destroyDesktop = () => {
-        qsa('[data-hscroll]').forEach(killSection);
-        if (hasGSAP) ScrollTrigger.refresh();
-    };
+    const initAll = () => {
+    qsa('[data-hscroll]').forEach(setupSection);
+    ScrollTrigger.refresh();
+};
 
-    // ==== Swiper (мобайл)
-    const hasSwiper = () => !!window.Swiper;
+    const destroyAll = () => {
+    qsa('[data-hscroll]').forEach(killSection);
+    ScrollTrigger.refresh();
+};
 
-    const initSwiperForSection = (section) => {
-        if (!hasSwiper()) {
-            console.warn('[hscroll] Swiper не найден – mobile режим пропущен');
-            return;
-        }
-        const track = qs('.hscroll__track', section);
-        if (!track) return;
-
-        // уже инициализирован?
-        if (track.swiper && !track.swiper.destroyed) return;
-
-        // подготовим DOM: section — контейнер, track — wrapper, дети — slides
-        section.classList.add('swiper');
-        track.classList.add('swiper-wrapper');
-        qsa(':scope > *', track).forEach((el) => el.classList.add('swiper-slide'));
-
-        const swiper = new Swiper(section, {
-            slidesPerView: 'auto',
-            spaceBetween: 0,
-            breakpoints: {
-                768: {
-                    slidesPerView: 2,
-                },
-            },
-            pagination: {
-                el: ".pagination",
-                clickable: true,
-            },
-        });
-
-        track._swiperRef = swiper;
-    };
-
-    const destroySwiperForSection = (section) => {
-        const track = qs('.hscroll__track', section);
-        if (!track) return;
-
-        // если есть инстанс — снести
-        const inst = track._swiperRef || track.swiper;
-        if (inst && !inst.destroyed) inst.destroy(true, true);
-
-        // вернуть DOM в исходное состояние
-        section.classList.remove('swiper');
-        track.classList.remove('swiper-wrapper');
-        qsa(':scope > *', track).forEach((el) => el.classList.remove('swiper-slide'));
-    };
-
-    const initMobile = () => {
-        const sections = qsa('[data-hscroll]');
-        sections.forEach((s) => {
-            // на всякий — убьём gsap
-            killSection(s);
-            initSwiperForSection(s);
-        });
-    };
-
-    const destroyMobile = () => {
-        qsa('[data-hscroll]').forEach(destroySwiperForSection);
-    };
-
-    // ==== переключатель режима
-    const computeMode = () => (window.innerWidth >= MOBILE_BP ? 'desktop' : 'mobile');
-
-    const applyMode = (mode) => {
-        if (mode === currentMode) return;
-        // сносим предыдущий режим
-        if (currentMode === 'desktop') destroyDesktop();
-        if (currentMode === 'mobile') destroyMobile();
-
-        // включаем новый
-        if (mode === 'desktop') initDesktop();
-        if (mode === 'mobile') initMobile();
-
-        currentMode = mode;
-    };
-
-    // ==== boot
-    const boot = () => applyMode(computeMode());
+    // ==== boot + обновления
+    const boot = () => initAll();
     document.addEventListener('DOMContentLoaded', boot);
-    window.addEventListener('load', () => applyMode(computeMode()));
+    window.addEventListener('load', () => ScrollTrigger.refresh());
 
-    // дебаунс, чтобы не дёргать инит слишком часто
-    window.addEventListener('resize', debounce(() => applyMode(computeMode()), 200), { passive: true });
+    // дебаунсим refresh на ресайзе; calcDistance() пересчитается,
+    // потому что он — функция в invalidateOnRefresh/tween.x
+    window.addEventListener('resize', debounce(() => {
+    // ничего не пересоздаём, просто даём GSAP всё переоценить
+    ScrollTrigger.refresh();
+}, 200), { passive: true });
+
+    // экспорт — вдруг пригодится вручную пересобрать
+    window.HScroll = { initAll, destroyAll, setupSection, killSection };
 })();

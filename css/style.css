@@ -833,33 +833,35 @@ footer .social {
         flex: 0 0 24.375rem;
     }
 
-    .hscroll {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hscroll.without-hidden {
-        overflow: visible;
-    }
-
-    .hscroll__track {
-        margin-top: 4rem;
-        display: inline-flex;
-        gap: 0;
-
-        overflow-x: auto;
-        /* overflow-y: hidden; */
-        scroll-behavior: smooth; /* мягкая прокрутка */
-        scrollbar-width: none;   /* Firefox */
-    }
-
     .cases__slider-item, .services__slider-item {
         padding-left: 1.25rem;
         padding-right: 1.25rem;
     }
-
-    .hscroll__track::-webkit-scrollbar { display: none; }
 }
+
+.hscroll {
+    position: relative;
+    overflow: hidden;
+}
+
+.hscroll.without-hidden {
+    overflow: visible;
+}
+
+.hscroll__track {
+    margin-top: 4rem;
+    display: inline-flex;
+    gap: 0;
+
+    overflow-x: auto;
+    /* overflow-y: hidden; */
+    scroll-behavior: smooth; /* мягкая прокрутка */
+    scrollbar-width: none;   /* Firefox */
+}
+
+
+
+.hscroll__track::-webkit-scrollbar { display: none; }
 
 @media (min-width: 1280px) {
     .partners-logo img {
@@ -1063,6 +1065,7 @@ footer .social {
     .services__slider-item {
         text-align: center;
         padding: 0 16px;
+        width: 100vw;
     }
 
     .services__slider h4 {
@@ -1298,10 +1301,10 @@ footer .social {
         padding: 0.25rem;
     }
 
-    .cases__slider {
-        max-width: 100%;
-        display: block;
-    }
+    /*.cases__slider {*/
+    /*    max-width: 100%;*/
+    /*    display: block;*/
+    /*}*/
 
 
     /*----------------*/
@@ -1358,6 +1361,10 @@ footer .social {
 @media (max-width: 1024px) {
     body, html {
         font-size: 18px;
+    }
+
+    .container {
+        width: 100%;
     }
 }
 
