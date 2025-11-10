@@ -177,7 +177,7 @@ header {
 }
 
 .header-content {
-    min-height: 750px;
+    min-height: calc(100vh - 60px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -225,7 +225,9 @@ header {
 }
 
 .team {
-    min-height: 40rem;
+    height: 50vw;
+    max-height: 90vh;
+    min-height: 700px;
     background: url(/assets/images/team.jpg) center left no-repeat;
     background-size: 100% 100%;
     padding: 6.25rem 0;
@@ -336,6 +338,10 @@ header {
     min-height: 3.75rem;
     text-align: center;
     padding: 0 0.25rem;
+}
+
+.services__slider-image img {
+    width: 100%;
 }
 
 .reviews {
@@ -984,6 +990,10 @@ footer .social {
         font-size: 1rem;
     }
 
+    .team h2.big {
+        font-size: 2.5rem;
+    }
+
     .btn {
         max-width: 400px;
         min-width: 0;
@@ -1366,6 +1376,49 @@ footer .social {
 @media (max-width: 360px) {
     body, html {
         font-size: 12px;
+    }
+}
+
+@media (min-width: 1920px) {
+    body, html {
+        font-size: 21px;
+    }
+
+    .container {
+        max-width: 1750px;
+    }
+
+    .team {
+        min-height: 850px;
+    }
+
+    .cf-modal__content {
+        width: 700px;
+    }
+
+    .cf-modal__wrap, .cf-modal__slider--wrapper {
+        width: min(1000px, 96vw);
+    }
+
+    .cf-modal__slider--wrapper {
+        height: 600px;
+    }
+
+    .cf-modal__slider--wrapper .modal-slider-next, .cf-modal__slider--wrapper .modal-slider-prev {
+        top: 275px;
+    }
+
+    .cf-modal__slider {
+        width: 600px;
+        height: 450px;
+    }
+
+    .cf-bullets li {
+        font-size: 0.9rem;
+    }
+
+    .services:before, .services:after {
+        width: 200px;
     }
 }
 
