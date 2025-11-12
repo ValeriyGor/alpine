@@ -1012,6 +1012,8 @@ footer .social {
         min-width: 0;
         font-weight: 600;
         padding: 0.5rem;
+        display: block;
+        margin: 0 auto;
     }
 
     .marquee .swiper-slide {
